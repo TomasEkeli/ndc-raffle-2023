@@ -7,7 +7,8 @@ namespace RaffleApplication.Hosting;
 [Route("[controller]")]
 public class RaffleController : ControllerBase
 {
-    static readonly Guid _raffleId = new("3F2670BF-F382-4944-BA13-DB50C956CDEA");
+    static readonly string _raffleId = "3F2670BF-F382-4944-BA13-DB50C956CDEA";
+
     readonly IAggregateOf<Raffle> _raffles;
     readonly IProjectionStore _projections;
     readonly ILogger<RaffleController> _logger;
@@ -24,7 +25,6 @@ public class RaffleController : ControllerBase
 
     [HttpPost("register")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RegisterParticipant(
         [FromBody] RegisterParticipantRequest request)
     {
@@ -34,10 +34,6 @@ public class RaffleController : ControllerBase
                 .Perform(raffle => raffle.RegisterParticipant(request.Email));
             return Ok();
         }
-        catch (AggregateException)
-        {
-            return BadRequest("already registered");
-        }
         catch (Exception e)
         {
             _logger.LogError(e, "Unexpected error");
@@ -45,7 +41,7 @@ public class RaffleController : ControllerBase
         }
     }
 
-    [HttpPost("enterSecretWord")]
+    [HttpPost("secret")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> EnterSecretWord(
         [FromBody] EnterSecretWordRequest request)
@@ -93,7 +89,7 @@ public class RaffleController : ControllerBase
     {
         var raffle = await _projections
             .Of<DrawHistory>()
-            .Get(new(_raffleId.ToString()));
+            .Get(new(_raffleId));
 
         if (!raffle.Winners.Any())
         {
@@ -114,7 +110,7 @@ public class RaffleController : ControllerBase
     {
         var raffle = await _projections
             .Of<ParticipantsTicketCount>()
-            .Get(new Dolittle.SDK.Projections.Key(_raffleId.ToString()));
+            .Get(new(_raffleId));
 
         if (!raffle.Participants.Any())
         {
@@ -126,6 +122,17 @@ public class RaffleController : ControllerBase
                     .Participants
                     .Select(kv => new Participant(kv.Key, kv.Value))
                     .OrderByDescending(_ => _.Tickets));
+    }
+
+    [HttpGet("tickets")]
+    [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetTotalTicketCount()
+    {
+        var raffle = await _projections
+            .Of<TotalTicketCount>()
+            .Get(new(_raffleId));
+
+        return Ok(raffle.TicketCount);
     }
 
     public record Winner(string Email, DateTimeOffset Timestamp);
