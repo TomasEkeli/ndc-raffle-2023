@@ -1,3 +1,5 @@
+using RaffleApplication.Events;
+
 namespace RaffleApplication.Read;
 
 [Projection("FF556BDA-3F2F-453B-99DB-4B5775DCBA25")]

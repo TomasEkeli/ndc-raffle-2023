@@ -1,4 +1,5 @@
 ﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hosting", "Source\Hosting\Hosting.csproj", "{6AA2BF74-B5AF-4382-9C33-18EFFB1023F3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".meta", ".meta", "{276B48D8-F4AF-4120-8688-0433003E09C9}"
@@ -14,6 +15,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain.Tests", "Tests\Domain.Tests\Domain.Tests.csproj", "{FC36ECFC-58DB-48BF-A14A-5F42599E1D83}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Read", "Source\Read\Read.csproj", "{80A46914-124A-4487-A708-CA9CC89A21B6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{B9928A02-C0A4-426A-AEE1-02FD3352C48E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Events", "Source\Events\Events.csproj", "{A3E41175-F89E-4964-B228-F78B5428E0C0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,8 +42,13 @@ Global
 		{80A46914-124A-4487-A708-CA9CC89A21B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80A46914-124A-4487-A708-CA9CC89A21B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80A46914-124A-4487-A708-CA9CC89A21B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3E41175-F89E-4964-B228-F78B5428E0C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3E41175-F89E-4964-B228-F78B5428E0C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3E41175-F89E-4964-B228-F78B5428E0C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3E41175-F89E-4964-B228-F78B5428E0C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FC36ECFC-58DB-48BF-A14A-5F42599E1D83} = {70EDA254-AAF8-42DF-9C58-5B4DB1C9B43C}
+		{A3E41175-F89E-4964-B228-F78B5428E0C0} = {B9928A02-C0A4-426A-AEE1-02FD3352C48E}
 	EndGlobalSection
 EndGlobal

@@ -1,8 +1,11 @@
+using RaffleApplication.Events;
+
 namespace RaffleApplication.Domain;
 
 [AggregateRoot("283df303-ecbd-41f8-af59-889c94279ac9")]
 public class Raffle : AggregateRoot
 {
+    const int _maxNumberOfTickets = 3;
     readonly HashSet<string> _participants = new();
     readonly HashSet<(string, string)> _words = new();
     readonly Dictionary<string, int> _ticketCounts = new();
@@ -15,35 +18,35 @@ public class Raffle : AggregateRoot
     };
     public void RegisterParticipant(string email)
     {
-        if (_participants.Contains(email))
+        if (!_participants.Contains(email))
         {
-            throw new ParticipantAlreadyRegisteredException("This email is already registered.");
+            Apply(new ParticipantRegistered(email));
         }
-
-        Apply(new ParticipantRegistered(email));
     }
 
     public void EnterSecretWord(string email, string secretWord)
     {
         if (!_participants.Contains(email))
         {
-            throw new ParticipantNotRegisteredException("This email is not registered.");
+            RegisterParticipant(email);
         }
 
         if (!_secretWords.Contains(secretWord))
         {
-            throw new InvalidSecretWordException("The secret word is not valid.");
+            //The secret word is not valid.
+            return;
         }
 
         if (_words.Contains((email, secretWord)))
         {
-            throw new InvalidSecretWordException("No double-dipping.");
+            // No double-dipping
+            return;
         }
 
-        if (_ticketCounts[email] >= 3)
+        if (_ticketCounts[email] >= _maxNumberOfTickets)
         {
-            throw new MaximumTicketsReachedException(
-                "The maximum number of tickets has been reached.");
+            // The maximum number of tickets has been reached.
+            return;
         }
 
         Apply(new SecretWordEntered(email, secretWord));

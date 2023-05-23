@@ -1,11 +1,8 @@
 global using System;
 global using System.Collections.Generic;
 global using System.Linq;
-global using System.Text.Json;
 global using Dolittle.SDK;
 global using Dolittle.SDK.Aggregates;
 global using Dolittle.SDK.Events;
 global using Dolittle.SDK.Events.Handling;
-global using Dolittle.SDK.Projections;
-global using Dolittle.SDK.Projections.Copies.MongoDB;
 global using Microsoft.Extensions.Logging;

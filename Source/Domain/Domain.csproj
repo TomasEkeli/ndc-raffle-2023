@@ -10,5 +10,9 @@
     <ItemGroup>
         <PackageReference Include="Dolittle.SDK" Version="20.2.0" />
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Events\Events.csproj" />
+    </ItemGroup>
     
 </Project>
