@@ -12,9 +12,24 @@ public class Raffle : AggregateRoot
     int _totalTickets;
     readonly string[] _secretWords =
     {
-        "dummy1",
-        "dummy2",
-        "dummy3"
+        /*
+         Representing the vast and interconnected nature of event-driven
+         systems, Nebula signifies the distributed and dynamic nature of
+         events in an architectural context.
+        */
+        "nebula",
+        /*
+         Signifying the connections and neural pathways of the brain, Synapse
+         relates to the integration of AI technologies within event-driven
+         systems, highlighting the intelligent decision-making capabilities.
+        */
+        "synapse",
+        /*
+         Evoking the concept of guardianship and vigilance, Sentinel represents
+         the monitoring and detection mechanisms within event-driven systems
+         that leverage AI capabilities to ensure proactive and responsive actions.
+        */
+        "sentinel"
     };
     public void RegisterParticipant(string email)
     {
@@ -63,24 +78,7 @@ public class Raffle : AggregateRoot
         Apply(new WinnerDrawn(DateTimeOffset.UtcNow, winnerEmail));
     }
 
-    void On(ParticipantRegistered evt)
-    {
-        _participants.Add(evt.Email);
-        _ticketCounts[evt.Email] = 0;
-    }
-
-    void On(SecretWordEntered evt)
-    {
-        _ticketCounts[evt.Email]++;
-        _words.Add((evt.Email, evt.SecretWord));
-        _totalTickets++;
-    }
-
-    void On(WinnerDrawn evt)
-    {
-    }
-
-    public string PickWinner()
+    string PickWinner()
     {
         var random = new Random();
         var winnerIndex = random.Next(_totalTickets);
@@ -97,4 +95,22 @@ public class Raffle : AggregateRoot
 
         throw new InvalidOperationException("Failed to pick a winner.");
     }
+
+    void On(ParticipantRegistered evt)
+    {
+        _participants.Add(evt.Email);
+        _ticketCounts[evt.Email] = 0;
+    }
+
+    void On(SecretWordEntered evt)
+    {
+        _ticketCounts[evt.Email]++;
+        _words.Add((evt.Email, evt.SecretWord));
+        _totalTickets++;
+    }
+
+    void On(WinnerDrawn _)
+    {
+    }
+
 }

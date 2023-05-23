@@ -8,5 +8,5 @@ public class TotalTicketCount
     public int TicketCount { get; set; }
 
     [KeyFromEventSource]
-    public void On(SecretWordEntered evt, ProjectionContext _) => TicketCount++;
+    public void On(SecretWordEntered _, ProjectionContext __) => TicketCount++;
 }

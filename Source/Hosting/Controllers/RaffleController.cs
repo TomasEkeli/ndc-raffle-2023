@@ -3,34 +3,38 @@ using RaffleApplication.Read;
 
 namespace RaffleApplication.Hosting;
 
+public record RegisterParticipantRequest(
+    [Required, EmailAddress] string Email);
+
+public record EnterSecretWordRequest(
+    [Required, EmailAddress] string Email,
+    [Required] string SecretWord);
+
 [ApiController]
 [Route("[controller]")]
 public class RaffleController : ControllerBase
 {
-    public record RegisterParticipantRequest(
-        [Required, EmailAddress] string Email);
-
-    public record EnterSecretWordRequest(
-        [Required, EmailAddress] string Email,
-        [Required] string SecretWord);
-
+    static readonly Guid _raffleId = new("3F2670BF-F382-4944-BA13-DB50C956CDEA");
     readonly IAggregateOf<Raffle> _raffles;
     readonly IProjectionOf<DrawHistory> _draws;
+    readonly IProjectionOf<ParticipantTicketCount> _participants;
     readonly ILogger<RaffleController> _logger;
 
     public RaffleController(
         IAggregateOf<Raffle> raffles,
         IProjectionOf<DrawHistory> draws,
+        // IProjectionOf<ParticipantTicketCount> participants,
         ILogger<RaffleController> logger)
     {
         _raffles = raffles;
-    _draws = draws;
-    _logger = logger;
+        _draws = draws;
+        // _participants = participants;
+        _logger = logger;
     }
 
-    static readonly Guid _raffleId = new("3F2670BF-F382-4944-BA13-DB50C956CDEA");
-
     [HttpPost("register")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RegisterParticipant(
         [FromBody] RegisterParticipantRequest request)
     {
@@ -40,9 +44,9 @@ public class RaffleController : ControllerBase
                 .Perform(raffle => raffle.RegisterParticipant(request.Email));
             return Ok();
         }
-        catch (AggregateException e)
+        catch (AggregateException)
         {
-            return BadRequest(e.InnerException?.Message);
+            return BadRequest("already registered");
         }
         catch (Exception e)
         {
@@ -52,7 +56,9 @@ public class RaffleController : ControllerBase
     }
 
     [HttpPost("enterSecretWord")]
-    public async Task<IActionResult> EnterSecretWord([FromBody] EnterSecretWordRequest request)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> EnterSecretWord(
+        [FromBody] EnterSecretWordRequest request)
     {
         try
         {
@@ -62,10 +68,6 @@ public class RaffleController : ControllerBase
                     raffle.EnterSecretWord(request.Email, request.SecretWord));
             return Ok();
         }
-        catch (AggregateException e)
-        {
-            return BadRequest(e.InnerException?.Message);
-        }
         catch (Exception e)
         {
             _logger.LogError(e, "Unexpected error");
@@ -73,7 +75,9 @@ public class RaffleController : ControllerBase
         }
     }
 
-    [HttpPost("drawWinner")]
+    [HttpPost("draw")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DrawWinner()
     {
         try
@@ -81,9 +85,9 @@ public class RaffleController : ControllerBase
             await _raffles.Get(_raffleId).Perform(raffle => raffle.DrawWinner());
             return Ok();
         }
-        catch (AggregateException e)
+        catch (AggregateException)
         {
-            return BadRequest(e.InnerException?.Message);
+            return BadRequest("No tickets entered");
         }
         catch (Exception e)
         {
@@ -93,10 +97,32 @@ public class RaffleController : ControllerBase
     }
 
     [HttpGet("winners")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetWinners()
     {
         var draws = await _draws.GetAll();
 
+        if (!draws.Any())
+        {
+            return NotFound();
+        }
+
         return Ok(draws.OrderByDescending(_ => _.Timestamp));
+    }
+
+    [HttpGet("participants")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetParticipants()
+    {
+        var raffle = await _participants.GetAll();
+
+        if (!raffle.Any())
+        {
+            return NotFound();
+        }
+
+        return Ok(raffle.OrderByDescending(_ => _.TicketCount));
     }
 }
