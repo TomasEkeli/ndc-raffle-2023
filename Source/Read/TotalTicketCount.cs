@@ -9,4 +9,7 @@ public class TotalTicketCount
 
     [KeyFromEventSource]
     public void On(SecretWordEntered _, ProjectionContext __) => TicketCount++;
+
+    [KeyFromEventSource]
+    public void On(ParticipantRegistered _, ProjectionContext __) => TicketCount++;
 }

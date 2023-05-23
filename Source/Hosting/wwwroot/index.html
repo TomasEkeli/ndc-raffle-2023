@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="favicon" href="assets/img/favicon.ico" type="image/x-icon" />
     <title>Raffle Service</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
@@ -22,6 +27,7 @@
         input {
             font-size: 1.2em;
             margin: 1em;
+            padding: 1ex 2em 1ex 1em;
         }
 
         button {
@@ -29,12 +35,28 @@
             margin: 1em;
         }
 
+        .hidden {
+            display: none;
+        }
+
         button {
             font-size: 1.2em;
+            padding: 1ex 2em;
+        }
+
+        @media(prefers-color-scheme: dark) {
+            body {
+                background-color: rgb(33, 37, 41);
+                color: #fff;
+            }
+            img.logo {
+                filter: invert(1);
+            }
         }
     </style>
 </head>
 <body>
+    <img class="logo" src="/assets/img/aigonix-logo.svg" alt="Aigonix Logo" width="200px">
     <h1>Aigonix NDC 2023 Raffle</h1>
     <p>Enter your email and secret word to register for the raffle.</p>
     <p>Once you have registered, you can enter the secret word to get an extra ticket.</p>
@@ -42,25 +64,47 @@
     <input type="email" id="email" placeholder="email">
     <input type="password" id="secretWord" placeholder="secret">
     <br>
-    <button value="submit" type="submit" onclick="enterSecretWord()">Enter Secret Word</button>
+    <button value="submit" type="submit" onclick="enterSecretWord()">
+        Send</button>
     <p>Ticket count: <span id="ticketCount">0</span></p>
     <button
         onclick="drawRaffle()"
-        style="visibility: hidden;">Draw Raffle</button>
+        class="hidden">Draw Raffle</button>
     <button
         onclick="getWinners()"
-        style="visibility: hidden">Get Winners</button>
+        class="hidden">Get Winners</button>
     <button
         onclick="getParticipants()"
-        style="visibility: hidden">Get Participants</button>
+        class="hidden">Get Participants</button>
     <button onclick="getTicketCount()">Update Ticket Count</button>
 
 
     <script>
+
+        function registerParticipant(email) {
+            $.ajax({
+                url: "/Raffle/register",
+                type: "POST",
+                data: JSON.stringify({ email: email }),
+                contentType: "application/json",
+                success: function(response) {
+                    console.log("Participant registered successfully!");
+                },
+                error: function(error) {
+                    console.error("Error registering participant:", error);
+                }
+            });
+        }
+
         // Function to make a POST request to enter a secret word
         function enterSecretWord() {
             let email = document.getElementById("email").value;
             let secretWord = document.getElementById("secretWord").value;
+
+            if (!secretWord) {
+                registerParticipant(email);
+                return;
+            }
 
             $.ajax({
                 url: "/Raffle/secret",
@@ -83,7 +127,6 @@
             $.ajax({
                 url: "/Raffle/draw",
                 type: "POST",
-                dataType: "json",
                 success: function(response) {
                     console.log("Raffle drawn successfully!");
                 },
@@ -127,6 +170,39 @@
                 }
             });
         }
+
+          // Function to make a GET request to retrieve the winners
+          function getWinners() {
+            $.ajax({
+                url: "/Raffle/winners",
+                type: "GET",
+                dataType: "json",
+                success: function(response) {
+                    console.log("Winners retrieved successfully!");
+                    console.log(response);
+                },
+                error: function(error) {
+                    console.error("Error retrieving winners:", error);
+                }
+            });
+        }
+
+        // Function to make a GET request to retrieve the participants
+        function getParticipants() {
+            $.ajax({
+                url: "/Raffle/participants",
+                type: "GET",
+                dataType: "json",
+                success: function(response) {
+                    console.log("Participants retrieved successfully!");
+                    console.log(response);
+                },
+                error: function(error) {
+                    console.error("Error retrieving participants:", error);
+                }
+            });
+        }
+
 
         getId();
         getTicketCount();

@@ -10,7 +10,7 @@ public class ParticipantsTicketCount
 
     [KeyFromEventSource]
     public void On(ParticipantRegistered evt, ProjectionContext _) =>
-        Participants.Add(evt.Email, 0);
+        Participants.Add(evt.Email, 1);
 
     [KeyFromEventSource]
     public void On(SecretWordEntered evt, ProjectionContext _) =>

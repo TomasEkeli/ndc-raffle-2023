@@ -1,4 +1,6 @@
 using Dolittle.SDK.Extensions.AspNet;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +26,20 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseRouting();
-app.UseStaticFiles();
+var provider = new FileExtensionContentTypeProvider();
+provider.Mappings[".webmanifest"] = "application/manifest+json";
+provider.Mappings[".png"] = "image/png";
+provider.Mappings[".ico"] = "image/x-icon";
+provider.Mappings[".svg"] = "image/svg+xml";
+app.UseStaticFiles(
+    new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(
+            Path.Combine(Directory.GetCurrentDirectory(), "assets", "img")),
+        RequestPath = "/assets/img",
+        ContentTypeProvider = provider
+    }
+);
 app.UseDefaultFiles();
 
 app.MapControllers();
