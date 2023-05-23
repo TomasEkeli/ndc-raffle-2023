@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using RaffleApplication.Events;
 
 namespace RaffleApplication.Domain;
@@ -5,32 +6,19 @@ namespace RaffleApplication.Domain;
 [AggregateRoot("283df303-ecbd-41f8-af59-889c94279ac9")]
 public class Raffle : AggregateRoot
 {
-    const int _maxNumberOfTickets = 3;
+    readonly int _maxNumberOfTicketsEach = 1;
     readonly HashSet<string> _participants = new();
     readonly HashSet<(string, string)> _words = new();
     readonly Dictionary<string, int> _ticketCounts = new();
     int _totalTickets;
-    readonly string[] _secretWords =
+    readonly string[] _secretWords = Array.Empty<string>();
+
+    public Raffle(IOptions<RaffleOptions> options)
     {
-        /*
-         Representing the vast and interconnected nature of event-driven
-         systems, Nebula signifies the distributed and dynamic nature of
-         events in an architectural context.
-        */
-        "nebula",
-        /*
-         Signifying the connections and neural pathways of the brain, Synapse
-         relates to the integration of AI technologies within event-driven
-         systems, highlighting the intelligent decision-making capabilities.
-        */
-        "synapse",
-        /*
-         Evoking the concept of guardianship and vigilance, Sentinel represents
-         the monitoring and detection mechanisms within event-driven systems
-         that leverage AI capabilities to ensure proactive and responsive actions.
-        */
-        "sentinel"
-    };
+        _secretWords = options?.Value.SecretWords ?? Array.Empty<string>();
+        _maxNumberOfTicketsEach = options?.Value.NumberOfTicketsEach ?? 1;
+    }
+
     public void RegisterParticipant(string email)
     {
         if (!_participants.Contains(email))
@@ -60,7 +48,7 @@ public class Raffle : AggregateRoot
             return;
         }
 
-        if (_ticketCounts[email] >= _maxNumberOfTickets)
+        if (_ticketCounts[email] >= _maxNumberOfTicketsEach)
         {
             // The maximum number of tickets has been reached.
             return;

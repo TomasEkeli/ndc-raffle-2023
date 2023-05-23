@@ -1,4 +1,5 @@
 using Dolittle.SDK.Projections.Store;
+using Microsoft.Extensions.Options;
 using RaffleApplication.Read;
 
 namespace RaffleApplication.Hosting;
@@ -7,17 +8,19 @@ namespace RaffleApplication.Hosting;
 [Route("[controller]")]
 public class RaffleController : ControllerBase
 {
-    static readonly string _raffleId = "3F2670BF-F382-4944-BA13-DB50C956CDEA";
+    readonly string _raffleId = "not-set";
 
     readonly IAggregateOf<Raffle> _raffles;
     readonly IProjectionStore _projections;
     readonly ILogger<RaffleController> _logger;
 
     public RaffleController(
+        IOptions<RaffleOptions> options,
         IAggregateOf<Raffle> raffles,
         IProjectionStore projections,
         ILogger<RaffleController> logger)
     {
+        _raffleId = options?.Value.Id ?? _raffleId;
         _raffles = raffles;
         _projections = projections;
         _logger = logger;
@@ -134,6 +137,11 @@ public class RaffleController : ControllerBase
 
         return Ok(raffle.TicketCount);
     }
+
+    [HttpGet("id")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    public IActionResult GetRaffleId() => Ok(_raffleId);
+
 
     public record Winner(string Email, DateTimeOffset Timestamp);
 

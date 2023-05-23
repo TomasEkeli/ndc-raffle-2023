@@ -2,6 +2,13 @@ using Dolittle.SDK.Extensions.AspNet;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile(
+    "./data/appsettings.json",
+    optional: false,
+    reloadOnChange: true);
+builder.Services.Configure<RaffleOptions>(
+    builder.Configuration.GetSection(RaffleOptions.SectionName)
+);
 builder.Host.UseDolittle();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
