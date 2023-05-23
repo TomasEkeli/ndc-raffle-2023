@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Raffle Service</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 1.2em;
+            margin: 3em;
+        }
+
+        h1 {
+            font-size: 2em;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin: 2em 0;
+        }
+
+        input {
+            font-size: 1.2em;
+            margin: 1em;
+        }
+
+        button {
+            font-size: 1.2em;
+            margin: 1em;
+        }
+
+        button {
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Aigonix NDC 2023 Raffle</h1>
+    <p>Enter your email and secret word to register for the raffle.</p>
+    <p>Once you have registered, you can enter the secret word to get an extra ticket.</p>
+    <p>Current raffle is: <span id="raffleId"></span></p>
+    <input type="email" id="email" placeholder="email">
+    <input type="password" id="secretWord" placeholder="secret">
+    <br>
+    <button value="submit" type="submit" onclick="enterSecretWord()">Enter Secret Word</button>
+    <p>Ticket count: <span id="ticketCount">0</span></p>
+    <button
+        onclick="drawRaffle()"
+        style="visibility: hidden;">Draw Raffle</button>
+    <button
+        onclick="getWinners()"
+        style="visibility: hidden">Get Winners</button>
+    <button
+        onclick="getParticipants()"
+        style="visibility: hidden">Get Participants</button>
+    <button onclick="getTicketCount()">Update Ticket Count</button>
+
+
+    <script>
+        // Function to make a POST request to enter a secret word
+        function enterSecretWord() {
+            let email = document.getElementById("email").value;
+            let secretWord = document.getElementById("secretWord").value;
+
+            $.ajax({
+                url: "/Raffle/secret",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ email: email, secretWord: secretWord }),
+                success: function(response) {
+                    console.log("Secret word entered successfully!");
+                    getTicketCount();
+                },
+                error: function(error) {
+                    console.error("Error entering secret word:", error);
+                    getTicketCount();
+                },
+            });
+        }
+
+        // Function to make a POST request to draw the raffle
+        function drawRaffle() {
+            $.ajax({
+                url: "/Raffle/draw",
+                type: "POST",
+                dataType: "json",
+                success: function(response) {
+                    console.log("Raffle drawn successfully!");
+                },
+                error: function(error) {
+                    console.error("Error drawing raffle:", error);
+                }
+            });
+        }
+
+        // Function to make a GET request to retrieve the ticket count
+        function getTicketCount() {
+
+            $.ajax({
+                url: "/Raffle/tickets",
+                type: "GET",
+                dataType: "json",
+                success: function(response) {
+                    console.log("Ticket count retrieved successfully!");
+                    console.log(response);
+                    document.getElementById("ticketCount").innerHTML = response;
+                },
+                error: function(error) {
+                    console.error("Error retrieving ticket count:", error);
+                }
+            });
+        }
+
+        // Function to make a GET request to retrieve the ID
+        function getId() {
+            $.ajax({
+                url: "/Raffle/id",
+                type: "GET",
+                dataType: "text",
+                success: function(response) {
+                    console.log("ID retrieved successfully!");
+                    console.log(response);
+                    document.getElementById("raffleId").innerHTML = response;
+                },
+                error: function(error) {
+                    console.error("Error retrieving ID:", error);
+                }
+            });
+        }
+
+        getId();
+        getTicketCount();
+    </script>
+</body>
+</html>

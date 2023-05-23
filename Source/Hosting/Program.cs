@@ -23,8 +23,11 @@ app.UseSwaggerUI(c =>
     c.EnableTryItOutByDefault();
 });
 
-app.UseHttpsRedirection();
 app.UseRouting();
+app.UseStaticFiles();
+app.UseDefaultFiles();
+
 app.MapControllers();
+app.MapFallbackToFile("index.html");
 
 app.Run();
