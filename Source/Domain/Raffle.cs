@@ -41,6 +41,8 @@ public class Raffle : AggregateRoot
 
     public void EnterSecretWord(string email, string secretWord)
     {
+        secretWord = secretWord.ToLowerInvariant();
+
         if (!_participants.Contains(email))
         {
             RegisterParticipant(email);

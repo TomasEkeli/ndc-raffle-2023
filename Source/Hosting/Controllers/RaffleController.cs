@@ -3,32 +3,22 @@ using RaffleApplication.Read;
 
 namespace RaffleApplication.Hosting;
 
-public record RegisterParticipantRequest(
-    [Required, EmailAddress] string Email);
-
-public record EnterSecretWordRequest(
-    [Required, EmailAddress] string Email,
-    [Required] string SecretWord);
-
 [ApiController]
 [Route("[controller]")]
 public class RaffleController : ControllerBase
 {
     static readonly Guid _raffleId = new("3F2670BF-F382-4944-BA13-DB50C956CDEA");
     readonly IAggregateOf<Raffle> _raffles;
-    readonly IProjectionOf<DrawHistory> _draws;
-    readonly IProjectionOf<ParticipantTicketCount> _participants;
+    readonly IProjectionStore _projections;
     readonly ILogger<RaffleController> _logger;
 
     public RaffleController(
         IAggregateOf<Raffle> raffles,
-        IProjectionOf<DrawHistory> draws,
-        // IProjectionOf<ParticipantTicketCount> participants,
+        IProjectionStore projections,
         ILogger<RaffleController> logger)
     {
         _raffles = raffles;
-        _draws = draws;
-        // _participants = participants;
+        _projections = projections;
         _logger = logger;
     }
 
@@ -85,7 +75,7 @@ public class RaffleController : ControllerBase
             await _raffles.Get(_raffleId).Perform(raffle => raffle.DrawWinner());
             return Ok();
         }
-        catch (AggregateException)
+        catch (AggregateRootOperationFailed)
         {
             return BadRequest("No tickets entered");
         }
@@ -97,32 +87,55 @@ public class RaffleController : ControllerBase
     }
 
     [HttpGet("winners")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Winner[]), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetWinners()
     {
-        var draws = await _draws.GetAll();
+        var raffle = await _projections
+            .Of<DrawHistory>()
+            .Get(new(_raffleId.ToString()));
 
-        if (!draws.Any())
+        if (!raffle.Winners.Any())
         {
             return NotFound();
         }
 
-        return Ok(draws.OrderByDescending(_ => _.Timestamp));
+        return Ok(
+            raffle
+                .Winners
+                .Select(kv => new Winner(kv.Value, kv.Key))
+                .OrderByDescending(_ => _.Timestamp));
     }
 
     [HttpGet("participants")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Participant[]), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetParticipants()
     {
-        var raffle = await _participants.GetAll();
+        var raffle = await _projections
+            .Of<ParticipantsTicketCount>()
+            .Get(new Dolittle.SDK.Projections.Key(_raffleId.ToString()));
 
-        if (!raffle.Any())
+        if (!raffle.Participants.Any())
         {
             return NotFound();
         }
 
-        return Ok(raffle.OrderByDescending(_ => _.TicketCount));
+        return Ok(
+                raffle
+                    .Participants
+                    .Select(kv => new Participant(kv.Key, kv.Value))
+                    .OrderByDescending(_ => _.Tickets));
     }
+
+    public record Winner(string Email, DateTimeOffset Timestamp);
+
+    public record Participant(string Email, int Tickets);
+
+    public record RegisterParticipantRequest(
+        [Required, EmailAddress] string Email);
+
+    public record EnterSecretWordRequest(
+        [Required, EmailAddress] string Email,
+        [Required] string SecretWord);
 }
