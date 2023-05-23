@@ -1,0 +1,12 @@
+version: '3.1'
+services:
+  runtime:
+    image: dolittle/runtime:8.9.2-development
+    environment:
+      - DOLITTLE__RUNTIME__EVENTSTORE__BACKWARDSCOMPATIBILITY__VERSION=V7
+    ports:
+      - 127.0.0.1:9700:9700
+      - 127.0.0.1:50052:50052
+      - 127.0.0.1:50053:50053
+      - 127.0.0.1:8001:8001
+      - 127.0.0.1:27017:27017

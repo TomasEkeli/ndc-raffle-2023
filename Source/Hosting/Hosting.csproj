@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <PublishProfile>DefaultContainer</PublishProfile>
+        <RootNamespace>RaffleApplication.Hosting</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Dolittle.SDK" Version="20.2.0" />
+        <PackageReference Include="Dolittle.SDK.Extensions.AspNet" Version="20.2.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+        <PackageReference Include="Microsoft.NET.Build.Containers" Version="0.4.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Domain\Domain.csproj" />
+      <ProjectReference Include="..\Read\Read.csproj" />
+    </ItemGroup>
+
+</Project>
