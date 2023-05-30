@@ -6,9 +6,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <PublishProfile>DefaultContainer</PublishProfile>
         <RootNamespace>RaffleApplication.Hosting</RootNamespace>
-        <ContainerImageName>aigonix-raffle</ContainerImageName>
-        <ContainerImageTags>1.0.0;latest</ContainerImageTags>
-        <ContainerRegistry>51ba509217e340eba4a4951278e8edaa.azurecr.io</ContainerRegistry>
+        <ContainerImageName>tomasekeli/ndc-raffle</ContainerImageName>
+        <ContainerImageTags>1.0.2;latest</ContainerImageTags>
     </PropertyGroup>
 
     <ItemGroup>
